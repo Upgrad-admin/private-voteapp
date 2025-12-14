@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'built-in' }
+    agent { label 'worker' }
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '15'))      // keep last 15 builds [web:8]
