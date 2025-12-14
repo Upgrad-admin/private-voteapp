@@ -26,8 +26,8 @@ pipeline {
         stage('Docker login and push') {
             steps {
                 sh 'docker login -u nisarga2403 -p Nisarga24*'                 // docker login [web:6]
-                sh 'docker build -t nisarga2403/votes:${BUILD_NUMBER} .'        // docker build example [web:6]
-                sh 'docker push nisarga2403/votes:${BUILD_NUMBER}'              // docker push with build tag [web:6]
+                sh 'docker build -t nisarga2403/vote ./vote:${BUILD_NUMBER} .'        // docker build example [web:6]
+                sh 'docker push nisarga2403/vote:${BUILD_NUMBER}'              // docker push with build tag [web:6]
             }
         }
 
