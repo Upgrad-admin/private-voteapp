@@ -1,40 +1,46 @@
-pipeline {
-    agent { label 'built-in' }
-
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '15'))      // keep last 15 builds [web:8]
-        disableConcurrentBuilds()                           // prevent parallel runs [web:9]
-        retry(2)                                            // retry failed stages twice [web:9]
-        timeout(time: 20, unit: 'MINUTES')                  // global timeout [web:9]
+pipeline{
+    agent any
+    options{
+        buildDiscarder(logRotator(numToKeepStr: '15')) 
+        disableConcurrentBuilds()
+        retry(2)
+        timeout(time: 20, unit: 'MINUTES')
     }
-
-    parameters {
-        string(
-            name: 'BRANCH',
-            defaultValue: 'main',
-            description: 'branch to build'
-        )                                                  // string parameter example [web:9]
-        choice(
-            name: 'ENV',
-            choices: ['qa', 'dev', 'prod'],
-            description: 'env to build'
-        )                                                  // static choice parameter [web:7]
+    parameters{
+        string(name: 'BRANCH', defaultValue: 'main', description: 'branch to build') 
+        choice(name: 'ENV', choices: ['qa', 'dev', 'prod'], description: 'env to build') 
     }
-
-    stages {
-
-        stage('Docker login and push') {
-            steps {
-                sh 'docker login -u nisarga2403 -p Nisarga24*'                 // docker login [web:6]
-                sh 'docker build -t nisarga2403/vote:${BUILD_NUMBER} ./vote'        // docker build example [web:6]
-                sh 'docker push nisarga2403/vote:${BUILD_NUMBER}'              // docker push with build tag [web:6]
+    stages{
+        stage("Docker login and push"){
+            steps{
+                sh "docker login -u nisarga2403 -p Nisarga24*"
+                sh '''
+                    cd vote
+                    docker build -t nisarga2403/vote:v${BUILD_NUMBER} .
+                    '''
+                sh "docker push nisarga2403/vote:v${BUILD_NUMBER}"
+            }
+        }
+        stage("Test"){
+            agent{label 'linux'}
+            steps{
+                sh "echo linux test"
+                sh "sleep 100"
+            }
+        }
+        stage("Test2"){
+            agent{label 'windows'}
+            steps{
+                sh "echo window test"
+                sh "sleep 100"
+            }
+        }
+        stage("deploy"){
+            steps{
+                sh "echo starting deployment"
             }
         }
 
-        stage('Deploy') {
-            steps {
-                sh 'echo starting deployment'                                 // placeholder deploy step [web:6]
-            }
-        }
     }
 }
+    
